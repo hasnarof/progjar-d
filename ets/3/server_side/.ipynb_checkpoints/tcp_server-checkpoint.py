@@ -5,29 +5,12 @@ import json
 import dicttoxml
 import os
 import ssl
-import threading
 
 alldata = dict()
 alldata['1']=dict(nomor=1, nama="dean henderson", posisi="kiper")
 alldata['2']=dict(nomor=2, nama="luke shaw", posisi="bek kiri")
 alldata['3']=dict(nomor=3, nama="aaron wan-bissaka", posisi="bek kanan")
 alldata['4']=dict(nomor=4, nama="victor lindelof", posisi="bek tengah kanan")
-alldata['5']=dict(nomor=5, nama="Asnawi Mangkualam", posisi="bek kanan")
-alldata['6']=dict(nomor=6, nama="Victor Igbonefo", posisi="bek tengah kanan")
-alldata['7']=dict(nomor=7, nama="Elkan Baggot", posisi="bek tengah kiri")
-alldata['8']=dict(nomor=8, nama="Pratama Arhan", posisi="bek kiri")
-alldata['9']=dict(nomor=9, nama="Rachmat Irianto", posisi="gelandang")
-alldata['10']=dict(nomor=10, nama="Evan Dimas", posisi="gelandang")
-alldata['11']=dict(nomor=11, nama="Ricky Kambuaya", posisi="gelandang")
-alldata['12']=dict(nomor=12, nama="Egy Maulana Vikri", posisi="penyerang")
-alldata['13']=dict(nomor=13, nama="Witan Sulaeman", posisi="penyerang kanan")
-alldata['14']=dict(nomor=14, nama="Ezra Walian", posisi="penyerang tengah")
-alldata['15']=dict(nomor=15, nama="Syahrul Trisna", posisi="penyerang")
-alldata['16']=dict(nomor=16, nama="Aldreanda Dewanga", posisi="penyerang kanan")
-alldata['17']=dict(nomor=17, nama="Fachruddin Aryanto", posisi="penyerang kiri")
-alldata['18']=dict(nomor=18, nama="Edo Febriansah", posisi="penyerang tengah")
-alldata['19']=dict(nomor=19, nama="Sani Rizki", posisi="bek kiri")
-alldata['20']=dict(nomor=20, nama="Irfan Jaya", posisi="bek kanan")
 
 def versi():
     return "versi 0.0.1"
@@ -86,8 +69,6 @@ def run_server(server_address,is_secure=False):
     # Listen for incoming connections
     sock.listen(1000)
 
-    threads = dict()
-    num_threads = 0
 
     while True:
         # Wait for a connection
@@ -102,52 +83,45 @@ def run_server(server_address,is_secure=False):
             else:
                 connection = koneksi
 
-            threads[num_threads] = threading.Thread(target=new_connection,args=(client_address,connection))
-            threads[num_threads].start()
-            num_threads = num_threads + 1
-            
+            selesai=False
+            data_received="" #string
+            while True:
+                data = connection.recv(32)
+                logging.warning(f"received {data}")
+                if data:
+                    data_received += data.decode()
+                    if "\r\n\r\n" in data_received:
+                        selesai=True
+
+                    if (selesai==True):
+                        hasil = proses_request(data_received)
+                        logging.warning(f"hasil proses: {hasil}")
+
+                        #hasil bisa berupa tipe dictionary
+                        #harus diserialisasi dulu sebelum dikirim via network
+                        # Send data
+                        # some data structure may have complex structure
+                        # how to send such data structure through the network ?
+                        # use serialization
+                        #  example : json, xml
+
+                        # complex structure, nested dict
+                        # all data that will be sent through network has to be encoded into bytes type"
+                        # in this case, the message (type: string) will be encoded to bytes by calling encode
+
+                        hasil = serialisasi(hasil)
+                        hasil += "\r\n\r\n"
+                        connection.sendall(hasil.encode())
+                        selesai = False
+                        data_received = ""  # string
+                        break
+
+                else:
+                   logging.warning(f"no more data from {client_address}")
+                   break
             # Clean up the connection
         except ssl.SSLError as error_ssl:
             logging.warning(f"SSL error: {str(error_ssl)}")
-
-def new_connection(client_address, connection):
-    selesai=False
-    data_received="" #string
-    while True:
-        data = connection.recv(32)
-        logging.warning(f"received {data}")
-        if data:
-            data_received += data.decode()
-            if "\r\n\r\n" in data_received:
-                selesai=True
-
-            if (selesai==True):
-                hasil = proses_request(data_received)
-                logging.warning(f"hasil proses: {hasil}")
-
-                #hasil bisa berupa tipe dictionary
-                #harus diserialisasi dulu sebelum dikirim via network
-                # Send data
-                # some data structure may have complex structure
-                # how to send such data structure through the network ?
-                # use serialization
-                #  example : json, xml
-
-                # complex structure, nested dict
-                # all data that will be sent through network has to be encoded into bytes type"
-                # in this case, the message (type: string) will be encoded to bytes by calling encode
-
-                hasil = serialisasi(hasil)
-                hasil += "\r\n\r\n"
-                connection.sendall(hasil.encode())
-                selesai = False
-                data_received = ""  # string
-                break
-
-        else:
-            logging.warning(f"no more data from {client_address}")
-            break
-
 
 if __name__=='__main__':
     try:

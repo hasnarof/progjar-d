@@ -5,11 +5,8 @@ import logging
 import xmltodict
 import ssl
 import os
-import datetime
-import random
-import threading
 
-server_address = ('172.16.16.101', 12000)
+server_address = ('172.16.16.104', 16000)
 
 def make_socket(destination_address='localhost',port=12000):
     try:
@@ -93,18 +90,32 @@ def lihatversi(is_secure=False):
     return hasil
     
 
-def multithread(thread_number):
-    texec = dict()
-    catat_awal = datetime.datetime.now()
-    for k in range(thread_number):
-        texec[k] = threading.Thread(target=getdatapemain, args=(random.randint(1, 20),True))
-        texec[k].start()
-
-    for k in range(thread_number):
-        texec[k].join()
-
-    catat_akhir = datetime.datetime.now()
-    return catat_akhir - catat_awal
 
 if __name__=='__main__':
-    print("Waktu yang dibutuhkan: ", multithread(1))
+    h = lihatversi(is_secure=True)
+    if (h):
+        print(h)
+
+    h = getdatapemain(1,is_secure=True)
+    if (h):
+        print(h['nama'],h['nomor'])
+    else:
+        print("kegagalan pada data transfer")
+
+    h = getdatapemain(2,is_secure=True)
+    if (h):
+        print(h['nama'],h['nomor'])
+    else:
+        print("kegagalan pada data transfer")
+
+    h = getdatapemain(3,is_secure=True)
+    if (h):
+        print(h['nama'],h['nomor'])
+    else:
+        print("kegagalan pada data transfer")
+
+    h = getdatapemain(4,is_secure=True)
+    if (h):
+        print(h['nama'],h['nomor'])
+    else:
+        print("kegagalan pada data transfer")
