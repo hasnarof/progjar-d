@@ -83,9 +83,20 @@ def remote_post(filename=""):
         print("Gagal upload file.")
         return False
 
+def remote_delete(filename=""):
+    command_str=f"DELETE {filename}"
+    hasil = send_command(command_str)
+
+    if(hasil['status']=='OK'):
+        print("Berhasil delete file.")
+        return True
+    else:
+        print("Gagal delete file.")
+        return False
 
 if __name__=='__main__':
     server_address=('172.16.16.101',6666)
     remote_list()
     remote_post('donalbebek2.jpg')
+    remote_delete('donalbebek2.jpg')
 

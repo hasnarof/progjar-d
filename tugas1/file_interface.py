@@ -29,7 +29,7 @@ class FileInterface:
     def post(self,params=[]):
         try:
             if len(params) < 2:
-                return dict(status='OK', data="Parameter kurang dari 2.")
+                return dict(status='ERROR', data="Parameter kurang dari 2.")
             
             filename = params[0]
             isifile = params[1]
@@ -48,7 +48,24 @@ class FileInterface:
         except Exception as e:
             return dict(status='ERROR',data=str(e))
 
+    def delete(self,params=[]):
+        try:
+            if len(params) < 1:
+                return dict(status='ERROR', data="Parameter kurang dari 1.")
+            
+            filename = params[0]
 
+            if filename == '':
+                return dict(status='ERROR', data="Parameter tidak terdapat nama file.")
+
+            if not os.path.exists(filename):
+                return dict(status='ERROR',data="File tidak ada.")  
+            
+            os.remove(filename)
+            return dict(status='OK', data="File berhasil dihapus.")
+            
+        except Exception as e:
+                return dict(status='ERROR',data=str(e))
 
 if __name__=='__main__':
     f = FileInterface()
