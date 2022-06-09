@@ -2,6 +2,7 @@ import socket
 import json
 import base64
 import logging
+import os.path
 
 server_address=('0.0.0.0',7777)
 
@@ -12,6 +13,7 @@ def send_command(command_str=""):
     logging.warning(f"connecting to {server_address}")
     try:
         logging.warning(f"sending message ")
+        command_str += "\r\n\r\n"
         sock.sendall(command_str.encode())
         # Look for the response, waiting until socket is done (no more data)
         data_received="" #empty string
@@ -63,9 +65,27 @@ def remote_get(filename=""):
         print("Gagal")
         return False
 
+def remote_post(filename=""):
+    if not os.path.exists(filename):
+        print("File tidak ditemukan.")
+        return False
+    else:
+        file = open(filename, 'rb')
+        file_encoded = base64.b64encode(file.read()).decode()
+
+    command_str=f"POST {filename} {file_encoded}"
+    hasil = send_command(command_str)
+
+    if (hasil['status']=='OK'):
+        print("Berhasil upload file.")
+        return True
+    else:
+        print("Gagal upload file.")
+        return False
+
 
 if __name__=='__main__':
     server_address=('172.16.16.101',6666)
     remote_list()
-    remote_get('donalbebek.jpg')
+    remote_post('donalbebek2.jpg')
 

@@ -39,3 +39,14 @@ GET
   - status: ERROR
   - data: pesan kesalahan
 
+POST
+* TUJUAN: untuk mengupload file ke server
+* PARAMETER:
+  - PARAMETER1 : nama file yang ingin diupload
+* RESULT:
+- BERHASIL:
+  - status: OK
+  - data: "File berhasil diupload."
+- GAGAL:
+  - status: ERROR
+  - data: pesan kesalahan
